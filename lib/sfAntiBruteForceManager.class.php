@@ -29,7 +29,6 @@ class sfAntiBruteForceManager
 
   /**
    * Tells if the user has reached the attempts threshold
-   * @todo move code to storage specific classes (file, DB, ...)
    *
    * @param string $identifier The user identifier (generally his login)
    *
