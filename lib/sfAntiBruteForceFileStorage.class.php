@@ -37,10 +37,10 @@ class sfAntiBruteForceFileStorage
    */
   public function  __construct($identifier)
   {
-    $this->identifier = $identifier;
+    $this->identifier = $this->clean($identifier);
     $this->dataFilePath = sfConfig::get('sf_cache_dir')
       . DIRECTORY_SEPARATOR . 'sfAntiBruteForcePlugin'
-      . DIRECTORY_SEPARATOR . $identifier;
+      . DIRECTORY_SEPARATOR . $this->identifier;
   }
 
   /**
@@ -80,9 +80,28 @@ class sfAntiBruteForceFileStorage
    */
   public function increaseAttemptsCount()
   {
+    // create folder if it doesn't exist
+    if (!is_dir(sfConfig::get('sf_cache_dir') . DIRECTORY_SEPARATOR . 'sfAntiBruteForcePlugin'))
+    {
+      $fs = new sfFilesystem();
+      $fs->mkdirs(sfConfig::get('sf_cache_dir') . DIRECTORY_SEPARATOR . 'sfAntiBruteForcePlugin', 0777);
+    }
+
     $newCount = $this->getAttemptsCount() + 1;
     $handle = fopen($this->dataFilePath, 'w');
     $written = fwrite($handle, sprintf('%s:%d', date('Y-m-d'), $newCount));
     fclose($handle);
+  }
+
+  /**
+   * Cleans identifier to avoid security risks
+   *
+   * @param string $identifier The identifier to clean
+   *
+   * @return string
+   */
+  protected function clean($identifier)
+  {
+    return str_replace(array('/', '.', '\\'), array('', '', ''), $identifier);
   }
 }
